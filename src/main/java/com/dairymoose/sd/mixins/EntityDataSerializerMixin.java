@@ -11,7 +11,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import com.dairymoose.sd.SerializerDebugCommon;
 import com.dairymoose.sd.sync.ServerSerializerInfo;
+import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
@@ -87,6 +89,26 @@ public abstract class EntityDataSerializerMixin {
 		 */
 		
 		if (SerializerDebugCommon.reorderClientIds) {
+			
+			String loggerName = LOGGER.getName();
+			boolean isDataLogger = loggerName != null && loggerName.contains("DataValue");
+			//LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "logger=" + loggerName);
+//			if (SerializerDebugCommon.waitOnSyncPacket && !RenderSystem.isOnRenderThread() && Minecraft.getInstance().level != null && isDataLogger && SerializerDebugCommon.serverSerializerList == null && SerializerDebugCommon.serializerRemapper.isEmpty()) {
+//				LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Sleeping until sync packet arrives...");
+//				int sleepCounter = 0;
+//				while (SerializerDebugCommon.serverSerializerList == null) {
+//					try {
+//						Thread.sleep(1);
+//						
+//						++sleepCounter;
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//				LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Done sleeping, time=" + sleepCounter + "ms");
+//			}
+			
 			if (SerializerDebugCommon.serverSerializerList != null) {
 				LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Init remapping process using server data, size=" + SerializerDebugCommon.serverSerializerList.size());
 				for (ServerSerializerInfo ssi : SerializerDebugCommon.serverSerializerList) {
@@ -108,7 +130,8 @@ public abstract class EntityDataSerializerMixin {
 				EntityDataSerializer oldSerializer = net.minecraftforge.common.ForgeHooks.getSerializer(oldId, getSERIALIZERS());
 				EntityDataSerializer newSerializer = net.minecraftforge.common.ForgeHooks.getSerializer(serializerId, getSERIALIZERS());
 				
-				LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Reordering from " + oldId + " to " + serializerId + ", old=" + oldSerializer + ", new=" + newSerializer);
+				if (!SerializerDebugCommon.suppressReorderLogging)
+					LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Reordering from " + oldId + " to " + serializerId + ", old=" + oldSerializer + ", new=" + newSerializer);
 				SerializerDebugCommon.remappedSerializerObjects.put(newSerializer, serializerId);
 			}
 		}
@@ -127,7 +150,8 @@ public abstract class EntityDataSerializerMixin {
 			if (newSerializerId != null) {
 				Integer oldId = net.minecraftforge.common.ForgeHooks.getSerializerId(serializerObject, getSERIALIZERS());
 				
-				LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Returning new serializer ID " + newSerializerId + " instead of " + oldId + " for object=" + serializerObject);
+				if (!SerializerDebugCommon.suppressReorderLogging)
+					LOGGER.error(SerializerDebugCommon.LOG_PREFIX + "Returning new serializer ID " + newSerializerId + " instead of " + oldId + " for object=" + serializerObject);
 				return newSerializerId;
 			}
 		}

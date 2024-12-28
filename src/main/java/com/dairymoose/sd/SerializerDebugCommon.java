@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerNegotiationEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -36,6 +37,8 @@ public class SerializerDebugCommon
     public static boolean onlyShowErrors = false;
     public static boolean reorderClientIds = false;
     public static int maxSerializer = 10000;
+    public static boolean waitOnSyncPacket = false;
+    public static boolean suppressReorderLogging = false;
     
     public static List<ServerSerializerInfo> serverSerializerList = null;
     
@@ -71,7 +74,7 @@ public class SerializerDebugCommon
 				if (eds != null) {
 					++counter;
 					
-					LOGGER.info(LOG_PREFIX + "Serializer " + i + " is: " + eds + " with class=" + eds.getClass());
+					LOGGER.info(LOG_PREFIX + "Serializer " + i + " is: " + eds.getClass().getName());
 				}
 			}
 		}
@@ -131,19 +134,36 @@ public class SerializerDebugCommon
 //		LOGGER.info("Sent ClientboundSerializerSyncPacket to connection=" + c);
 //	}
 
-    @SubscribeEvent
-   	public void onPlayerLogin(PlayerLoggedInEvent event) {
-    	String name = null;
-    	if (event.getEntity() != null && event.getEntity().getName() != null) {
-    		name = event.getEntity().getName().getString();
-    	}
-   		LOGGER.info(LOG_PREFIX + "Player login: " + name);
-   		
-   		SerializerDebugCommon.dumpSerializers();
-   		
-   		ServerPlayer sp = (ServerPlayer)event.getEntity();
-   		LOGGER.info("Sending ClientboundSerializerSyncPacket to player=" + sp);
-   		SerializerDebugNetwork.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)event.getEntity()), new ClientboundSerializerSyncPacket(this.getSerializerList()));
-   		LOGGER.info("Sent ClientboundSerializerSyncPacket to player=" + sp);
-   	}
+	@SubscribeEvent
+	public void onPlayerDatapackSync(OnDatapackSyncEvent event) {
+		String name = null;
+		if (event.getPlayer() != null && event.getPlayer().getName() != null) {
+			name = event.getPlayer().getName().getString();
+		}
+		LOGGER.info(LOG_PREFIX + "Player datapack sync: " + name);
+
+		SerializerDebugCommon.dumpSerializers();
+
+		ServerPlayer sp = (ServerPlayer) event.getPlayer();
+		LOGGER.info("Sending ClientboundSerializerSyncPacket to player=" + sp);
+		SerializerDebugNetwork.INSTANCE.send(PacketDistributor.PLAYER.with(() -> sp),
+				new ClientboundSerializerSyncPacket(this.getSerializerList()));
+		LOGGER.info("Sent ClientboundSerializerSyncPacket to player=" + sp);
+	}
+    
+//    @SubscribeEvent
+//   	public void onPlayerLogin(PlayerLoggedInEvent event) {
+//    	String name = null;
+//    	if (event.getEntity() != null && event.getEntity().getName() != null) {
+//    		name = event.getEntity().getName().getString();
+//    	}
+//   		LOGGER.info(LOG_PREFIX + "Player login: " + name);
+//   		
+//   		SerializerDebugCommon.dumpSerializers();
+//   		
+//   		ServerPlayer sp = (ServerPlayer)event.getEntity();
+//   		LOGGER.info("Sending ClientboundSerializerSyncPacket to player=" + sp);
+//   		SerializerDebugNetwork.INSTANCE.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)event.getEntity()), new ClientboundSerializerSyncPacket(this.getSerializerList()));
+//   		LOGGER.info("Sent ClientboundSerializerSyncPacket to player=" + sp);
+//   	}
 }

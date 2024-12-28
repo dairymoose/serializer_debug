@@ -1,8 +1,6 @@
 package com.dairymoose.sd;
 
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod(SerializerDebugMain.MODID)

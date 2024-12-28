@@ -35,6 +35,14 @@ public class SerializerDebugConfig
             .comment("Re-order client IDs")
             .define("reorder_client_ids", true);
     
+//    private static final ForgeConfigSpec.BooleanValue WAIT_ON_SYNC_PACKET = BUILDER
+//            .comment("Wait on sync packet")
+//            .define("wait_on_sync_packet", true);
+    
+    private static final ForgeConfigSpec.BooleanValue SUPPRESS_REORDER_LOGGING = BUILDER
+            .comment("Suppress re-order logging")
+            .define("suppress_reorder_logging", true);
+    
     static final ForgeConfigSpec SPEC = BUILDER.build();
 
     public static void reinit() {
@@ -43,7 +51,9 @@ public class SerializerDebugConfig
 	    	
 	    	SerializerDebugCommon.ignoreSerializerError = IGNORE_SERIALIZER_ERROR.get().booleanValue();
 	    	SerializerDebugCommon.onlyShowErrors = ONLY_SHOW_ERRORS.get().booleanValue();
-	    	SerializerDebugCommon.reorderClientIds = REORDER_CLIENT_IDS.get().booleanValue(); 
+	    	SerializerDebugCommon.reorderClientIds = REORDER_CLIENT_IDS.get().booleanValue();
+	    	//SerializerDebugCommon.waitOnSyncPacket = WAIT_ON_SYNC_PACKET.get().booleanValue();
+	    	SerializerDebugCommon.suppressReorderLogging = SUPPRESS_REORDER_LOGGING.get().booleanValue();
 		} catch (Exception ex) {
 			LOGGER.error("Error initializing config", ex);
 		}

@@ -35,10 +35,7 @@ public class SynchedEntityDataMixin {
 		EntityDataSerializer<?> entitydataserializer = EntityDataSerializers.getSerializer(i);
 		if (entitydataserializer == null) {
 			LOGGER.error("[SerializerDebug] Error: Unknown serializer type " + i);
-			//int ri = byteBuf.readerIndex();
-			//byteBuf.readerIndex(0);
-			//int readEntityId = byteBuf.readVarInt();
-			//LOGGER.error("[SerializerDebug] Error: readEntityId=" + readEntityId + " for byteBuf=" + byteBuf + " with hash=" + byteBuf.hashCode());
+
 			int entityId = -1;
 			entityId = SerializerDebugCommon.lastEntityId;
 			LOGGER.error("[SerializerDebug] Error: entityId=" + entityId + " for byteBuf=" + byteBuf + " with hash=" + byteBuf.hashCode());
